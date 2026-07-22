@@ -47,6 +47,15 @@
 
 extern Sockets mod_s;
 
+/* ---- External SSL config callback (T-Box patch) ---- */
+static SSLSocket_externalConfigCallback g_ssl_ext_cb = NULL;
+
+void SSLSocket_setExternalConfigCallback(SSLSocket_externalConfigCallback cb)
+{
+	g_ssl_ext_cb = cb;
+}
+/* ---- end patch ---- */
+
 static int SSLSocket_error(char* aString, SSL* ssl, SOCKET sock, int rc, int (*cb)(const char *str, size_t len, void *u), void* u);
 char* SSL_get_verify_result_string(int rc);
 void SSL_CTX_info_callback(const SSL* ssl, int where, int ret);
@@ -621,7 +630,20 @@ int SSLSocket_createContext(networkHandles* net, MQTTClient_SSLOptions* opts)
 		}
 
 		/* support for ASN.1 == DER format? DER can contain only one certificate? */
-		rc = SSL_CTX_use_PrivateKey_file(net->ctx, opts->privateKey, SSL_FILETYPE_PEM);
+		/* ---- T-Box patch: external SSL config callback ---- */
+		if (g_ssl_ext_cb && opts->privateKey &&
+		    strcmp(opts->privateKey, "__EXTERNAL_CONFIG__") == 0)
+		{
+			rc = g_ssl_ext_cb(net->ctx);
+			if (rc != 0)
+				goto free_ctx;
+			rc = 1;   /* pretend file load succeeded */
+		}
+		else
+		/* ---- end patch ---- */
+		{
+			rc = SSL_CTX_use_PrivateKey_file(net->ctx, opts->privateKey, SSL_FILETYPE_PEM);
+		}
 		if (opts->privateKey == opts->keyStore)
 			opts->privateKey = NULL;
 		if (rc != 1)
