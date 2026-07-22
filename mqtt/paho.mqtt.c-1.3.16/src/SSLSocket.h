@@ -52,4 +52,11 @@ SOCKET SSLSocket_getPendingRead(void);
 int SSLSocket_continueWrite(pending_writes* pw);
 int SSLSocket_abortWrite(pending_writes* pw);
 
+/* External SSL config callback (T-Box patch).
+ * When set, and when SSLOptions.privateKey == "__EXTERNAL_CONFIG__",
+ * this callback is invoked with the SSL_CTX* right after creation,
+ * allowing the application to inject credentials from an HSM / TEE. */
+typedef int (*SSLSocket_externalConfigCallback)(SSL_CTX *ctx);
+void SSLSocket_setExternalConfigCallback(SSLSocket_externalConfigCallback cb);
+
 #endif
