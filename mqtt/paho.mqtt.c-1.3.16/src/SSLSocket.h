@@ -29,6 +29,7 @@
 #include <openssl/ssl.h>
 #include "SocketBuffer.h"
 #include "Clients.h"
+#include "SSLSocketConfig.h"
 
 #define URI_SSL   "ssl://"
 #define URI_TLS   "tls://"
@@ -51,11 +52,4 @@ int SSLSocket_connect(SSL* ssl, SOCKET sock, const char* hostname, int verify, i
 SOCKET SSLSocket_getPendingRead(void);
 int SSLSocket_continueWrite(pending_writes* pw);
 int SSLSocket_abortWrite(pending_writes* pw);
-
-/* External SSL config callback (T-Box patch).
- * When set, and when SSLOptions.privateKey == "__EXTERNAL_CONFIG__",
- * this callback is invoked with the SSL_CTX* right after creation. */
-typedef int (*SSLSocket_externalConfigCallback)(SSL_CTX *ctx);
-void SSLSocket_setExternalConfigCallback(SSLSocket_externalConfigCallback cb);
-
 #endif

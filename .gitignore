@@ -13,6 +13,7 @@ CMakeUserPresets.json
 *.tmp
 *.pm
 openssl/out/
+mqtt/out/
 
 
 # CLion

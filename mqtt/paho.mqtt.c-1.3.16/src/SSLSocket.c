@@ -50,6 +50,7 @@ extern Sockets mod_s;
 /* ---- External SSL config callback (T-Box patch) ---- */
 static SSLSocket_externalConfigCallback g_ssl_ext_cb = NULL;
 
+__attribute__((visibility("default")))
 void SSLSocket_setExternalConfigCallback(SSLSocket_externalConfigCallback cb)
 {
 	g_ssl_ext_cb = cb;
