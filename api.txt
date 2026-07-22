@@ -1,0 +1,28 @@
+ql_km_initialize() 初始化加解密服务
+ql_km_deinitialize() 去初始化加解密服务
+ql_km_gen_key() 生成密钥
+ql_km_import_key() 导入密钥
+ql_km_destroy_key() 销毁密钥，释放内存
+ql_km_destroy_blob() 销毁 BLOB 数据，释放内存
+ql_km_operation_begin() 开始一个算法操作
+ql_km_operation_update() 进行算法操作
+ql_km_operation_finish() 进行最后一轮算法操作
+ql_km_export_key() 导出非对称算法的公钥
+ql_km_get_key_algo() 从 BLOB 数据中读取当前密钥的算法类别
+ql_aes_genkey_args() 生成调用 ql_km_gen_key()的 key_args 参数
+ql_aes_operation_args() 生成调用 ql_km_operation_begin
+ql_rsa_genkey_args() 生成调用 ql_km_gen_key()的参数
+ql_rsa_operation_args() 生成调用 ql_km_operation_begin()的参数
+ql_ec_genkey_args() 生成调用 ql_km_gen_key()的参数
+ql_ss_initialize() 初始化安全存储功能
+ql_ss_deinitialize() 去初始化安全存储功能
+ql_ss_open() 打开安全存储对象
+ql_ss_create() 创建并打开安全存储对象
+ql_ss_close() 关闭安全存储对象
+ql_ss_read() 从安全存储中读取数据
+ql_ss_write() 向安全存储写入数据
+ql_ss_seek() 移动安全存储文件的文件指针
+ql_ss_unlink() 删除安全存储文件
+ql_ss_trunc() 截短安全存储文件到指定的长度
+ql_ss_rename() 重命名安全存储对象
+ql_ss_get_info() 获取安全存储对象信息
