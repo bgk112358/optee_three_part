@@ -558,7 +558,8 @@ int SSLSocket_createContext(networkHandles* net, MQTTClient_SSLOptions* opts)
 {
 	int rc = 1;
 
-	FUNC_ENTRY;
+	fprintf(stderr, "[paho-SSL] createContext ENTER privateKey=%s\n",
+		opts && opts->privateKey ? opts->privateKey : "(null)");
 	if (net->ctx == NULL)
 	{
 #if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
@@ -631,20 +632,7 @@ int SSLSocket_createContext(networkHandles* net, MQTTClient_SSLOptions* opts)
 		}
 
 		/* support for ASN.1 == DER format? DER can contain only one certificate? */
-		/* ---- T-Box patch: external SSL config callback ---- */
-		if (g_ssl_ext_cb && opts->privateKey &&
-		    strcmp(opts->privateKey, "__EXTERNAL_CONFIG__") == 0)
-		{
-			rc = g_ssl_ext_cb(net->ctx);
-			if (rc != 0)
-				goto free_ctx;
-			rc = 1;   /* pretend file load succeeded */
-		}
-		else
-		/* ---- end patch ---- */
-		{
-			rc = SSL_CTX_use_PrivateKey_file(net->ctx, opts->privateKey, SSL_FILETYPE_PEM);
-		}
+		rc = SSL_CTX_use_PrivateKey_file(net->ctx, opts->privateKey, SSL_FILETYPE_PEM);
 		if (opts->privateKey == opts->keyStore)
 			opts->privateKey = NULL;
 		if (rc != 1)
@@ -656,6 +644,18 @@ int SSLSocket_createContext(networkHandles* net, MQTTClient_SSLOptions* opts)
 			goto free_ctx;
 		}
 	}
+	/* ---- T-Box patch: external SSL config callback (runs WITHOUT keyStore) ---- */
+	else if (g_ssl_ext_cb && opts->privateKey &&
+	         strcmp(opts->privateKey, "__EXTERNAL_CONFIG__") == 0)
+	{
+		fprintf(stderr, "[paho-SSL] calling external callback...\n");
+		rc = g_ssl_ext_cb(net->ctx);
+		fprintf(stderr, "[paho-SSL] callback returned %d\n", rc);
+		if (rc != 0)
+			goto free_ctx;
+		rc = 1;
+	}
+	/* ---- end patch ---- */
 
 	if (opts->trustStore || opts->CApath)
 	{
@@ -802,10 +802,15 @@ int SSLSocket_connect(SSL* ssl, SOCKET sock, const char* hostname, int verify, i
 	FUNC_ENTRY;
 
 	ERR_clear_error();
+	fprintf(stderr, "[paho-SSL] SSL_connect START...\n");
 	rc = SSL_connect(ssl);
+	fprintf(stderr, "[paho-SSL] SSL_connect rc=%d\n", rc);
 	if (rc != 1)
 	{
 		int error;
+		fprintf(stderr, "[paho-SSL] SSL_connect FAIL — error=%d errno=%d\n",
+			rc, errno);
+		ERR_print_errors_fp(stderr);
 		error = SSLSocket_error("SSL_connect", ssl, sock, rc, cb, u);
 		if (error == SSL_FATAL)
 			rc = error;
