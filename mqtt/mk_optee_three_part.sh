@@ -7,14 +7,10 @@
 FILEPATH=$(readlink -f "$0")
 DIRPATH=$(dirname "$FILEPATH")
 
-optee_dir="/home/test0923/workspace/optee400"
+# optee_dir="/home/test0923/workspace/optee400"
 
 echo $FILEPATH
 echo $DIRPATH
-
-export PATH="$optee_dir/toolchains/aarch64/bin:$PATH"
-export CROSS_COMPILE_HOST=aarch64-linux-gnu
-export ARCH=arm
 
 # OpenSSL cross-built artifacts (reference: ../openssl/mk_*.sh)
 OPENSSL_DIR="$DIRPATH/../openssl/out"
@@ -29,9 +25,6 @@ mkdir build && cd build
 # OpenSSL paths must be explicit; CMake's find_package(OpenSSL) won't
 # find the cross-compiled libs on its own.
 cmake .. \
-    -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
-    -DCMAKE_SYSTEM_NAME=Linux \
-    -DCMAKE_SYSTEM_PROCESSOR=aarch64 \
     -DCMAKE_INSTALL_PREFIX="$DIRPATH/out" \
     -DPAHO_WITH_SSL=TRUE \
     -DPAHO_BUILD_SHARED=TRUE \
@@ -51,5 +44,5 @@ cd -   # back to paho.mqtt.c-1.3.16
 
 cd "$DIRPATH"
 
-echo "Copy "$FILEPATH" three part bin to $optee_dir/out-br/-------------------"
-cp -au ./out/lib/*.so*  $optee_dir/out-br/target/usr/lib/
+# echo "Copy "$FILEPATH" three part bin to $optee_dir/out-br/-------------------"
+# cp -au ./out/lib/*.so*  $optee_dir/out-br/target/usr/lib/
